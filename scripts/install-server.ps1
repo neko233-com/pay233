@@ -15,6 +15,9 @@ $ConfigFile = if ($env:PAY233_SERVER_CONFIG) { $env:PAY233_SERVER_CONFIG } else 
 $ListenAddr = if ($env:PAY233_SERVER_ADDR) { $env:PAY233_SERVER_ADDR } else { ":5500" }
 $TaskName = if ($env:PAY233_SERVER_TASK) { $env:PAY233_SERVER_TASK } else { "pay233-server" }
 $LogDir = if ($env:PAY233_SERVER_LOG_DIR) { $env:PAY233_SERVER_LOG_DIR } else { Join-Path $ConfigDir "logs" }
+$DataDir = if ($env:PAY233_SERVER_DATA_DIR) { $env:PAY233_SERVER_DATA_DIR } else { Join-Path $ConfigDir "data" }
+$AdminUsername = if ($env:PAY233_ADMIN_USERNAME) { $env:PAY233_ADMIN_USERNAME } else { "root" }
+$AdminPassword = if ($env:PAY233_ADMIN_PASSWORD) { $env:PAY233_ADMIN_PASSWORD } else { "root" }
 
 function Get-Pay233LatestVersion {
     $r = Invoke-RestMethod -Uri "https://api.github.com/repos/$Repo/releases/latest"
@@ -34,13 +37,22 @@ function Write-Pay233Config {
     }
 
     $secret = if ($env:PAY233_SIGNING_SECRET) { $env:PAY233_SIGNING_SECRET } else { New-Pay233Secret }
+    $adminSecret = if ($env:PAY233_ADMIN_SESSION_SECRET) { $env:PAY233_ADMIN_SESSION_SECRET } else { New-Pay233Secret }
     New-Item -ItemType Directory -Force -Path $ConfigDir | Out-Null
     $config = [ordered]@{
         http = [ordered]@{ addr = $ListenAddr }
         api = [ordered]@{ signing_secret = $secret }
+        admin = [ordered]@{
+            username = $AdminUsername
+            password = $AdminPassword
+            session_secret = $adminSecret
+        }
         logging = [ordered]@{
             dir = $LogDir
             retention_days = 31
+        }
+        storage = [ordered]@{
+            payments_path = (Join-Path $DataDir "payments.jsonl")
         }
         channels = @(
             [ordered]@{

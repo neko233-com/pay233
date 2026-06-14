@@ -18,6 +18,8 @@ try {
     $listener.Stop()
 
     $logDir = Join-Path $tmp "logs"
+    $dataDir = Join-Path $tmp "data-admin"
+    Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $logDir, $dataDir
     $config = Join-Path $tmp "config.admin-e2e.json"
     @"
 {
@@ -25,6 +27,7 @@ try {
   "api": {"signing_secret": "dev-secret"},
   "admin": {"username":"root","password":"root","session_secret":"dev-admin-secret"},
   "logging": {"dir": "$($logDir.Replace('\','\\'))", "retention_days": 31},
+  "storage": {"payments_path": "$((Join-Path $dataDir "payments.jsonl").Replace('\','\\'))"},
   "channels": [
     {"name":"mock","provider":"mock","enabled":true},
     {"name":"wechat","provider":"wechat_pay","enabled":true},

@@ -34,13 +34,16 @@ $port = $listener.LocalEndpoint.Port
 $listener.Stop()
 
 $logDir = Join-Path $tmp "logs-env"
+$dataDir = Join-Path $tmp "data-env"
 $config = Join-Path $tmp "config.env-e2e.json"
+Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $logDir, $dataDir
 @"
 {
   "http": {"addr": "127.0.0.1:$port"},
   "api": {"signing_secret": "dev-secret"},
   "admin": {"username":"root","password":"root","session_secret":"dev-admin-secret"},
   "logging": {"dir": "$($logDir.Replace('\','\\'))", "retention_days": 31},
+  "storage": {"payments_path": "$((Join-Path $dataDir "payments.jsonl").Replace('\','\\'))"},
   "channels": [{"name":"mock","provider":"mock","enabled":true}]
 }
 "@ | Set-Content -Path $config -Encoding UTF8

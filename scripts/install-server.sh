@@ -15,6 +15,9 @@ LISTEN_ADDR="${PAY233_SERVER_ADDR:-:5500}"
 SIGNING_SECRET="${PAY233_SIGNING_SECRET:-}"
 SERVICE_NAME="${PAY233_SERVER_SERVICE:-pay233-server}"
 LOG_DIR="${PAY233_SERVER_LOG_DIR:-${CONFIG_DIR}/logs}"
+DATA_DIR="${PAY233_SERVER_DATA_DIR:-${CONFIG_DIR}/data}"
+ADMIN_USERNAME="${PAY233_ADMIN_USERNAME:-root}"
+ADMIN_PASSWORD="${PAY233_ADMIN_PASSWORD:-root}"
 
 detect_os() {
     case "$(uname -s)" in
@@ -76,6 +79,14 @@ write_config() {
             secret="$(date +%s)-pay233-change-me"
         fi
     fi
+    admin_secret="${PAY233_ADMIN_SESSION_SECRET:-}"
+    if [ -z "$admin_secret" ]; then
+        if command -v openssl >/dev/null 2>&1; then
+            admin_secret="$(openssl rand -hex 32)"
+        else
+            admin_secret="$(date +%s)-pay233-admin-change-me"
+        fi
+    fi
 
     tmp="$(mktemp)"
     cat >"$tmp" <<EOF
@@ -86,9 +97,17 @@ write_config() {
   "api": {
     "signing_secret": "${secret}"
   },
+  "admin": {
+    "username": "${ADMIN_USERNAME}",
+    "password": "${ADMIN_PASSWORD}",
+    "session_secret": "${admin_secret}"
+  },
   "logging": {
     "dir": "${LOG_DIR}",
     "retention_days": 31
+  },
+  "storage": {
+    "payments_path": "${DATA_DIR}/payments.jsonl"
   },
   "channels": [
     {

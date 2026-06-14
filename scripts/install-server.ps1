@@ -57,6 +57,10 @@ function Write-Pay233Config {
             audit_path = (Join-Path $DataDir "audit.jsonl")
             audit_retention_days = 31
         }
+        monitor = [ordered]@{
+            channel_health_interval_seconds = 60
+            channel_health_timeout_seconds = 5
+        }
         channels = @(
             [ordered]@{
                 name = "mock"

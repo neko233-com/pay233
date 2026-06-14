@@ -112,6 +112,10 @@ write_config() {
     "audit_path": "${DATA_DIR}/audit.jsonl",
     "audit_retention_days": 31
   },
+  "monitor": {
+    "channel_health_interval_seconds": 60,
+    "channel_health_timeout_seconds": 5
+  },
   "channels": [
     {
       "name": "mock",

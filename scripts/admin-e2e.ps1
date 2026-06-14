@@ -33,6 +33,7 @@ try {
     "audit_path": "$((Join-Path $dataDir "audit.jsonl").Replace('\','\\'))",
     "audit_retention_days": 31
   },
+  "monitor": {"channel_health_interval_seconds": 60, "channel_health_timeout_seconds": 5},
   "channels": [
     {"name":"mock","provider":"mock","enabled":true},
     {"name":"wechat","provider":"wechat_pay","enabled":true},

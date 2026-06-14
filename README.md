@@ -53,3 +53,5 @@ curl -fsSL https://raw.githubusercontent.com/neko233-com/pay233/main/scripts/ins
 ```
 
 The installer downloads `pay233-server` from `neko233-com/pay233-server` releases, creates a default config, and installs startup integration where available.
+
+Default installed channels include `mock`, `wechat`, `alipay`, `stripe`, `paypal`, `google-pay`, `apple-iap`, and `unionpay`. The admin console is available at `/admin` with default credentials `root` / `root`; change them before production use.

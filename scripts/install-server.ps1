@@ -42,6 +42,41 @@ function Write-Pay233Config {
                 name = "mock"
                 provider = "mock"
                 enabled = $true
+            },
+            [ordered]@{
+                name = "wechat"
+                provider = "wechat_pay"
+                enabled = $true
+            },
+            [ordered]@{
+                name = "alipay"
+                provider = "alipay"
+                enabled = $true
+            },
+            [ordered]@{
+                name = "stripe"
+                provider = "stripe"
+                enabled = $true
+            },
+            [ordered]@{
+                name = "paypal"
+                provider = "paypal"
+                enabled = $true
+            },
+            [ordered]@{
+                name = "google-pay"
+                provider = "google_pay"
+                enabled = $true
+            },
+            [ordered]@{
+                name = "apple-iap"
+                provider = "apple_iap"
+                enabled = $true
+            },
+            [ordered]@{
+                name = "unionpay"
+                provider = "unionpay"
+                enabled = $true
             }
         )
     }

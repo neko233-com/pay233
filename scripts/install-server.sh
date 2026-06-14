@@ -90,6 +90,41 @@ write_config() {
       "name": "mock",
       "provider": "mock",
       "enabled": true
+    },
+    {
+      "name": "wechat",
+      "provider": "wechat_pay",
+      "enabled": true
+    },
+    {
+      "name": "alipay",
+      "provider": "alipay",
+      "enabled": true
+    },
+    {
+      "name": "stripe",
+      "provider": "stripe",
+      "enabled": true
+    },
+    {
+      "name": "paypal",
+      "provider": "paypal",
+      "enabled": true
+    },
+    {
+      "name": "google-pay",
+      "provider": "google_pay",
+      "enabled": true
+    },
+    {
+      "name": "apple-iap",
+      "provider": "apple_iap",
+      "enabled": true
+    },
+    {
+      "name": "unionpay",
+      "provider": "unionpay",
+      "enabled": true
     }
   ]
 }

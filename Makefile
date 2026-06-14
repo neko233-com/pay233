@@ -1,4 +1,4 @@
-.PHONY: test test-server test-lib test-race test-server-race test-lib-race vet vet-server vet-lib smoke
+.PHONY: test test-server test-lib test-race test-server-race test-lib-race vet vet-server vet-lib smoke admin-e2e
 
 test: test-server test-lib
 
@@ -26,3 +26,6 @@ vet-lib:
 
 smoke:
 	powershell -NoProfile -ExecutionPolicy Bypass -File scripts/smoke.ps1
+
+admin-e2e:
+	powershell -NoProfile -ExecutionPolicy Bypass -File scripts/admin-e2e.ps1

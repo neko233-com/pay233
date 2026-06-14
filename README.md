@@ -28,6 +28,7 @@ After the server is running locally:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/smoke.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/admin-e2e.ps1
 ```
 
 GitHub Actions runs `go vet`, race-enabled tests, and coverage output for both child modules. Local race tests require CGO and a C compiler.

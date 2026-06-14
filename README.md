@@ -21,6 +21,9 @@ Because both child repositories started empty, create and push their first commi
 make test
 make test-race
 make vet
+make env-e2e
+make admin-e2e
+make verify
 docker compose up --build
 ```
 
@@ -28,12 +31,32 @@ After the server is running locally:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/smoke.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/env-e2e.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/admin-e2e.ps1
 ```
+
+`env-e2e.ps1` starts a temporary server and proves that the same `out_trade_no` can exist once in `test` and once in `release`, while admin dashboard filters remain isolated. `admin-e2e.ps1` verifies login-first access and captures desktop/mobile screenshots.
 
 GitHub Actions runs `go vet`, race-enabled tests, and coverage output for both child modules. Local race tests require CGO and a C compiler.
 
 The server listens on port `5500` by default.
+
+## Environment Isolation
+
+Every create-payment HTTP request can carry `envType`:
+
+```json
+{
+  "envType": "test",
+  "merchant_id": "merchant_1",
+  "out_trade_no": "order_10001",
+  "channel": "mock",
+  "amount": { "currency": "CNY", "amount": 100 },
+  "subject": "Test order"
+}
+```
+
+Supported values are `test` and `release`. Empty values default to `test`, and the server also accepts `env_type` for snake-case clients. Webhook callbacks can carry the same field so test callbacks cannot update release payments. The admin dashboard defaults to the test view and can switch between test, release, and all environments without deploying another server.
 
 ## Install Server
 

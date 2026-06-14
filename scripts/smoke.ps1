@@ -21,6 +21,7 @@ if ($health.status -ne "ok") {
 }
 
 $body = @{
+    envType = "test"
     merchant_id = "smoke-merchant"
     out_trade_no = "smoke-$(Get-Date -Format yyyyMMddHHmmss)"
     channel = "mock"

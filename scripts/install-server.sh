@@ -107,7 +107,10 @@ write_config() {
     "retention_days": 31
   },
   "storage": {
-    "payments_path": "${DATA_DIR}/payments.jsonl"
+    "payments_path": "${DATA_DIR}/payments.jsonl",
+    "admin_users_path": "${DATA_DIR}/admin-users.json",
+    "audit_path": "${DATA_DIR}/audit.jsonl",
+    "audit_retention_days": 31
   },
   "channels": [
     {

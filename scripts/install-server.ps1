@@ -53,6 +53,9 @@ function Write-Pay233Config {
         }
         storage = [ordered]@{
             payments_path = (Join-Path $DataDir "payments.jsonl")
+            admin_users_path = (Join-Path $DataDir "admin-users.json")
+            audit_path = (Join-Path $DataDir "audit.jsonl")
+            audit_retention_days = 31
         }
         channels = @(
             [ordered]@{

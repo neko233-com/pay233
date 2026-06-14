@@ -90,5 +90,9 @@ Logs are daily rotated and retained for 31 days by default:
 Payments are persisted by default:
 
 - payment store: `data/payments.jsonl`
+- admin users: `data/admin-users.json`
+- operation audit log: `data/audit.jsonl`, retained for 31 days
+
+Admin roles are `root`, `admin`, and `employee`. `root` can create admin/employee accounts and prune expired audit logs; `employee` is read-only.
 
 For installer-based deployments, override paths and secrets with environment variables such as `PAY233_SERVER_DATA_DIR`, `PAY233_SERVER_LOG_DIR`, `PAY233_SIGNING_SECRET`, `PAY233_ADMIN_USERNAME`, `PAY233_ADMIN_PASSWORD`, and `PAY233_ADMIN_SESSION_SECRET`.

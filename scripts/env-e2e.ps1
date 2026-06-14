@@ -43,7 +43,12 @@ Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $logDir, $dataDir
   "api": {"signing_secret": "dev-secret"},
   "admin": {"username":"root","password":"root","session_secret":"dev-admin-secret"},
   "logging": {"dir": "$($logDir.Replace('\','\\'))", "retention_days": 31},
-  "storage": {"payments_path": "$((Join-Path $dataDir "payments.jsonl").Replace('\','\\'))"},
+  "storage": {
+    "payments_path": "$((Join-Path $dataDir "payments.jsonl").Replace('\','\\'))",
+    "admin_users_path": "$((Join-Path $dataDir "admin-users.json").Replace('\','\\'))",
+    "audit_path": "$((Join-Path $dataDir "audit.jsonl").Replace('\','\\'))",
+    "audit_retention_days": 31
+  },
   "channels": [{"name":"mock","provider":"mock","enabled":true}]
 }
 "@ | Set-Content -Path $config -Encoding UTF8

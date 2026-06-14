@@ -32,6 +32,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/smoke.ps1
 
 GitHub Actions runs `go vet`, race-enabled tests, and coverage output for both child modules. Local race tests require CGO and a C compiler.
 
+The server listens on port `5500` by default.
+
 ## Install Server
 
 Linux/macOS:
@@ -55,3 +57,8 @@ curl -fsSL https://raw.githubusercontent.com/neko233-com/pay233/main/scripts/ins
 The installer downloads `pay233-server` from `neko233-com/pay233-server` releases, creates a default config, and installs startup integration where available.
 
 Default installed channels include `mock`, `wechat`, `alipay`, `stripe`, `paypal`, `google-pay`, `apple-iap`, and `unionpay`. The admin console is available at `/admin` with default credentials `root` / `root`; change them before production use.
+
+Logs are daily rotated and retained for 31 days by default:
+
+- app logs: `logs/app-YYYY-MM-DD.log`
+- payment audit logs: `logs/payments/payment-YYYY-MM-DD.log`

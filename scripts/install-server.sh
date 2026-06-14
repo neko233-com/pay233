@@ -11,9 +11,10 @@ BINARY_NAME="pay233-server"
 INSTALL_DIR="${PAY233_SERVER_INSTALL:-/usr/local/bin}"
 CONFIG_DIR="${PAY233_SERVER_CONFIG_DIR:-/etc/pay233}"
 CONFIG_FILE="${PAY233_SERVER_CONFIG:-${CONFIG_DIR}/config.json}"
-LISTEN_ADDR="${PAY233_SERVER_ADDR:-:8080}"
+LISTEN_ADDR="${PAY233_SERVER_ADDR:-:5500}"
 SIGNING_SECRET="${PAY233_SIGNING_SECRET:-}"
 SERVICE_NAME="${PAY233_SERVER_SERVICE:-pay233-server}"
+LOG_DIR="${PAY233_SERVER_LOG_DIR:-${CONFIG_DIR}/logs}"
 
 detect_os() {
     case "$(uname -s)" in
@@ -84,6 +85,10 @@ write_config() {
   },
   "api": {
     "signing_secret": "${secret}"
+  },
+  "logging": {
+    "dir": "${LOG_DIR}",
+    "retention_days": 31
   },
   "channels": [
     {

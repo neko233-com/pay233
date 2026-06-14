@@ -12,8 +12,9 @@ $Repo = if ($env:PAY233_SERVER_REPO) { $env:PAY233_SERVER_REPO } else { "neko233
 $InstallDir = if ($env:PAY233_SERVER_INSTALL) { $env:PAY233_SERVER_INSTALL } else { Join-Path $env:LOCALAPPDATA "pay233" }
 $ConfigDir = if ($env:PAY233_SERVER_CONFIG_DIR) { $env:PAY233_SERVER_CONFIG_DIR } else { Join-Path $env:ProgramData "pay233" }
 $ConfigFile = if ($env:PAY233_SERVER_CONFIG) { $env:PAY233_SERVER_CONFIG } else { Join-Path $ConfigDir "config.json" }
-$ListenAddr = if ($env:PAY233_SERVER_ADDR) { $env:PAY233_SERVER_ADDR } else { ":8080" }
+$ListenAddr = if ($env:PAY233_SERVER_ADDR) { $env:PAY233_SERVER_ADDR } else { ":5500" }
 $TaskName = if ($env:PAY233_SERVER_TASK) { $env:PAY233_SERVER_TASK } else { "pay233-server" }
+$LogDir = if ($env:PAY233_SERVER_LOG_DIR) { $env:PAY233_SERVER_LOG_DIR } else { Join-Path $ConfigDir "logs" }
 
 function Get-Pay233LatestVersion {
     $r = Invoke-RestMethod -Uri "https://api.github.com/repos/$Repo/releases/latest"
@@ -37,6 +38,10 @@ function Write-Pay233Config {
     $config = [ordered]@{
         http = [ordered]@{ addr = $ListenAddr }
         api = [ordered]@{ signing_secret = $secret }
+        logging = [ordered]@{
+            dir = $LogDir
+            retention_days = 31
+        }
         channels = @(
             [ordered]@{
                 name = "mock"

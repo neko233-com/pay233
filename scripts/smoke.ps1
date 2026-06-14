@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 
-$baseUrl = if ($env:PAY233_BASE_URL) { $env:PAY233_BASE_URL } else { "http://127.0.0.1:8080" }
+$baseUrl = if ($env:PAY233_BASE_URL) { $env:PAY233_BASE_URL } else { "http://127.0.0.1:5500" }
 $secret = if ($env:PAY233_SIGNING_SECRET) { $env:PAY233_SIGNING_SECRET } else { "dev-secret" }
 
 function New-Pay233Signature {

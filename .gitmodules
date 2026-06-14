@@ -1,0 +1,6 @@
+[submodule "pay233-server"]
+	path = pay233-server
+	url = https://github.com/neko233-com/pay233-server.git
+[submodule "pay233-lib-go"]
+	path = pay233-lib-go
+	url = https://github.com/neko233-com/pay233-lib-go.git

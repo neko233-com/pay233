@@ -1,0 +1,55 @@
+# pay233
+
+`pay233` is the umbrella repository for the company payment center.
+
+It manages two development repositories:
+
+- `pay233-server`: unified payment access service
+- `pay233-lib-go`: Go client SDK for business services
+
+## Clone
+
+```bash
+git clone --recurse-submodules https://github.com/neko233-com/pay233.git
+```
+
+Because both child repositories started empty, create and push their first commits before recording submodule SHAs in this umbrella repository.
+
+## Automation
+
+```bash
+make test
+make test-race
+make vet
+docker compose up --build
+```
+
+After the server is running locally:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/smoke.ps1
+```
+
+GitHub Actions runs `go vet`, race-enabled tests, and coverage output for both child modules. Local race tests require CGO and a C compiler.
+
+## Install Server
+
+Linux/macOS:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/neko233-com/pay233/main/scripts/install-server.sh | sh
+```
+
+Windows PowerShell:
+
+```powershell
+iwr -useb https://raw.githubusercontent.com/neko233-com/pay233/main/scripts/install-server.ps1 | iex
+```
+
+Install a specific version:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/neko233-com/pay233/main/scripts/install-server.sh | sh -s -- v0.1.0
+```
+
+The installer downloads `pay233-server` from `neko233-com/pay233-server` releases, creates a default config, and installs startup integration where available.

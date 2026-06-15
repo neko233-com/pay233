@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>pay233 操作文档</title>
+  <meta name="description" content="pay233 统一支付中心安装、配置、运维和 GitHub Pages 发布操作文档。">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="top">
+    <nav class="nav" aria-label="主导航">
+      <a class="brand" href="#top" aria-label="pay233 文档首页">
+        <span>P</span>
+        <strong>pay233</strong>
+      </a>
+      <div class="nav-links">
+        <a href="#install">安装</a>
+        <a href="#env">双环境</a>
+        <a href="#ops">运维</a>
+        <a href="#pages">Pages 发布</a>
+      </div>
+    </nav>
+    <section id="top" class="hero">
+      <p class="eyebrow">统一支付中心操作手册</p>
+      <h1>一台服务器同时接入测试与正式支付</h1>
+      <p class="lead">本文档覆盖 pay233-server 安装、渠道配置、签名接入、后台管理、审计留痕、渠道检活、自动化验证和 GitHub Pages 发布。</p>
+      <div class="actions">
+        <a class="button" href="#install">开始部署</a>
+        <a class="button ghost" href="https://github.com/neko233-com/pay233-server/releases/latest">下载服务端</a>
+      </div>
+      <figure class="hero-visual">
+        <img src="./assets/pay233-dashboard.png" alt="pay233 后台支付运营大盘截图">
+      </figure>
+    </section>
+  </header>
+
+  <main>
+    <section class="section summary" aria-label="能力总览">
+      <article>
+        <span>01</span>
+        <h2>统一接入</h2>
+        <p>微信、支付宝、Stripe、PayPal、Google Pay、Apple iOS Pay、银联和通用第三方渠道共享同一套支付 API。</p>
+      </article>
+      <article>
+        <span>02</span>
+        <h2>双环境配置</h2>
+        <p>同一个渠道可以配置 <code>test</code> 与 <code>release</code> 两套凭据、支付地址和健康检查策略，无需部署两套服务。</p>
+      </article>
+      <article>
+        <span>03</span>
+        <h2>可视化后台</h2>
+        <p>登录后查看大盘、异常支付、未成功回调、疑似丢单、渠道健康和不可随意删除的操作审计。</p>
+      </article>
+    </section>
+
+    <section id="install" class="section content-grid">
+      <div>
+        <p class="eyebrow">部署</p>
+        <h2>一键安装 pay233-server</h2>
+        <p>默认端口是 <code>5500</code>，默认管理员账号密码是 <code>root / root</code>。首次部署后请立即修改管理员密码和签名密钥。</p>
+      </div>
+      <div class="code-stack">
+        <figure>
+          <figcaption>Linux / macOS</figcaption>
+          <pre><code>curl -fsSL https://raw.githubusercontent.com/neko233-com/pay233/main/scripts/install-server.sh | sh</code></pre>
+        </figure>
+        <figure>
+          <figcaption>Windows PowerShell</figcaption>
+          <pre><code>iwr -useb https://raw.githubusercontent.com/neko233-com/pay233/main/scripts/install-server.ps1 | iex</code></pre>
+        </figure>
+        <figure>
+          <figcaption>指定版本</figcaption>
+          <pre><code>curl -fsSL https://raw.githubusercontent.com/neko233-com/pay233/main/scripts/install-server.sh | sh -s -- v0.7.0</code></pre>
+        </figure>
+      </div>
+    </section>
+
+    <section id="env" class="section">
+      <div class="section-head">
+        <p class="eyebrow">配置</p>
+        <h2>同渠道 test / release 配置</h2>
+        <p>顶层 <code>credentials</code> 和 <code>options</code> 是共享默认值，<code>environments.test</code> 与 <code>environments.release</code> 只覆盖需要不同的字段。</p>
+      </div>
+      <figure class="wide-code">
+        <figcaption>channels 配置示例</figcaption>
+        <pre><code>{
+  "name": "wechat",
+  "provider": "wechat_pay",
+  "enabled": true,
+  "options": {
+    "pay_url_base": "https://pay233.local/wechat/pay"
+  },
+  "environments": {
+    "test": {
+      "credentials": {
+        "merchant_id": "wechat-test-mch",
+        "api_key": "test-key"
+      },
+      "options": {
+        "pay_url_base": "https://test.pay.example/wechat/pay",
+        "health_status": "ok"
+      }
+    },
+    "release": {
+      "credentials": {
+        "merchant_id": "wechat-release-mch",
+        "api_key": "release-key"
+      },
+      "options": {
+        "pay_url_base": "https://pay.example/wechat/pay",
+        "health_status": "ok"
+      }
+    }
+  }
+}</code></pre>
+      </figure>
+    </section>
+
+    <section class="section content-grid">
+      <div>
+        <p class="eyebrow">接入</p>
+        <h2>创建支付请求</h2>
+        <p>业务方每次创建支付都带上 <code>envType</code>。同一个 <code>out_trade_no</code> 可以在测试和正式各存在一笔，Webhook 也按环境隔离更新。</p>
+      </div>
+      <figure>
+        <figcaption>POST /v1/payments</figcaption>
+        <pre><code>{
+  "envType": "test",
+  "merchant_id": "merchant_1",
+  "out_trade_no": "order_10001",
+  "channel": "wechat",
+  "amount": { "currency": "CNY", "amount": 100 },
+  "subject": "测试订单"
+}</code></pre>
+      </figure>
+    </section>
+
+    <section id="security" class="section split">
+      <article>
+        <p class="eyebrow">安全</p>
+        <h2>签名与请求限制</h2>
+        <p>接口签名使用 <code>X-Pay233-Timestamp</code> 与 <code>X-Pay233-Signature</code>，签名内容为 <code>timestamp + "." + body</code> 的 HMAC-SHA256 十六进制值。</p>
+        <ul>
+          <li>默认时间窗为 300 秒，可通过 <code>api.signature_max_skew_seconds</code> 调整。</li>
+          <li>签名接口和 Webhook 请求体限制为 1 MiB。</li>
+          <li>后台 Cookie 在 HTTPS 或代理 HTTPS 下自动设置 Secure。</li>
+          <li>静态页和 API 默认携带安全响应头。</li>
+        </ul>
+      </article>
+      <article>
+        <p class="eyebrow">后台</p>
+        <h2>权限与审计</h2>
+        <p>后台入口是 <code>/admin</code>，必须先登录 <code>/admin/login.html</code> 才能进入 <code>/admin/dashboard.html</code>。</p>
+        <ul>
+          <li><code>root</code> 可以创建管理员和只读员工，并清理 31 天以外的审计记录。</li>
+          <li><code>admin</code> 可以处理支付异常、重试回调和触发渠道检活。</li>
+          <li><code>employee</code> 只读，可查看大盘、支付、审计和健康状态。</li>
+        </ul>
+      </article>
+    </section>
+
+    <section id="ops" class="section">
+      <div class="section-head">
+        <p class="eyebrow">运维</p>
+        <h2>日志、检活和自动化验证</h2>
+      </div>
+      <div class="ops-grid">
+        <article>
+          <h3>日志保留</h3>
+          <p>应用日志写入 <code>logs/app-YYYY-MM-DD.log</code>，支付事件写入 <code>logs/payments/payment-YYYY-MM-DD.log</code>，默认保留 31 天。</p>
+        </article>
+        <article>
+          <h3>渠道检活</h3>
+          <p>服务默认每 60 秒检查一次下游渠道。配置了环境覆盖后，健康状态会按 <code>channel/test</code> 和 <code>channel/release</code> 分别展示和审计。</p>
+        </article>
+        <article>
+          <h3>本地验证</h3>
+          <pre><code>go test -cover ./...
+go vet ./...
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/env-channel-e2e.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/admin-e2e.ps1</code></pre>
+        </article>
+      </div>
+    </section>
+
+    <section id="pages" class="section content-grid">
+      <div>
+        <p class="eyebrow">文档发布</p>
+        <h2>使用 gh 发布 GitHub Pages</h2>
+        <p>仓库内置 <code>.github/workflows/pages.yml</code>，会把 <code>docs/</code> 发布到 GitHub Pages。推送到 <code>main</code> 后执行发布脚本即可自动启用 Pages 并触发发布。</p>
+      </div>
+      <figure>
+        <figcaption>启用并触发 Pages 发布</figcaption>
+        <pre><code>powershell -NoProfile -ExecutionPolicy Bypass -File scripts/publish-docs-pages.ps1</code></pre>
+      </figure>
+    </section>
+
+    <section class="section checklist">
+      <p class="eyebrow">上线检查</p>
+      <h2>生产前必做</h2>
+      <ul>
+        <li>修改 <code>root / root</code> 默认密码。</li>
+        <li>配置强随机 <code>PAY233_SIGNING_SECRET</code> 与 <code>PAY233_ADMIN_SESSION_SECRET</code>。</li>
+        <li>为正式渠道填写真实 <code>release</code> 凭据，并保留可验证的 <code>test</code> 凭据。</li>
+        <li>确认服务器时间同步，否则签名时间窗会拒绝合法请求。</li>
+        <li>备份 <code>data/payments.jsonl</code>、<code>data/admin-users.json</code>、<code>data/audit.jsonl</code> 和 31 天支付日志。</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <span>pay233 docs</span>
+    <a href="https://github.com/neko233-com/pay233">GitHub</a>
+    <a href="https://github.com/neko233-com/pay233-server/releases/latest">Latest release</a>
+  </footer>
+</body>
+</html>

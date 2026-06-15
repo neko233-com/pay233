@@ -129,3 +129,15 @@ Admin roles are `root`, `admin`, and `employee`. `root` can create admin/employe
 Downstream payment channel health is checked automatically every 60 seconds by default. The admin dashboard shows health, latency, last check time, and recent errors; `root` and `admin` can trigger immediate checks.
 
 For installer-based deployments, override paths and secrets with environment variables such as `PAY233_SERVER_DATA_DIR`, `PAY233_SERVER_LOG_DIR`, `PAY233_SIGNING_SECRET`, `PAY233_ADMIN_USERNAME`, `PAY233_ADMIN_PASSWORD`, and `PAY233_ADMIN_SESSION_SECRET`.
+
+## GitHub Pages Docs
+
+The operation manual lives in `docs/` and is deployed by `.github/workflows/pages.yml`.
+
+After pushing changes to `main`, enable and publish Pages with `gh`:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/publish-docs-pages.ps1
+```
+
+The script configures this repository to use GitHub Actions Pages, triggers the Pages workflow, waits for completion, and prints the published URL.

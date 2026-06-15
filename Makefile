@@ -1,4 +1,4 @@
-.PHONY: test test-server test-lib test-race test-server-race test-lib-race vet vet-server vet-lib smoke admin-e2e env-e2e env-channel-e2e health-e2e verify
+.PHONY: test test-server test-lib test-race test-server-race test-lib-race vet vet-server vet-lib smoke admin-e2e env-e2e env-channel-e2e health-e2e publish-docs-pages verify
 
 test: test-server test-lib
 
@@ -38,5 +38,8 @@ env-channel-e2e:
 
 health-e2e:
 	powershell -NoProfile -ExecutionPolicy Bypass -File scripts/health-e2e.ps1
+
+publish-docs-pages:
+	powershell -NoProfile -ExecutionPolicy Bypass -File scripts/publish-docs-pages.ps1
 
 verify: test vet env-e2e env-channel-e2e health-e2e admin-e2e

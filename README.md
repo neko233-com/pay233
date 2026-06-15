@@ -22,6 +22,7 @@ make test
 make test-race
 make vet
 make env-e2e
+make env-channel-e2e
 make health-e2e
 make admin-e2e
 make verify
@@ -33,11 +34,12 @@ After the server is running locally:
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/smoke.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/env-e2e.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/env-channel-e2e.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/health-e2e.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/admin-e2e.ps1
 ```
 
-`env-e2e.ps1` starts a temporary server and proves that the same `out_trade_no` can exist once in `test` and once in `release`, while admin dashboard filters remain isolated. `health-e2e.ps1` verifies channel health checks and audit records. `admin-e2e.ps1` verifies login-first access and captures desktop/mobile screenshots.
+`env-e2e.ps1` starts a temporary server and proves that the same `out_trade_no` can exist once in `test` and once in `release`, while admin dashboard filters remain isolated. `env-channel-e2e.ps1` verifies that one channel can carry separate test/release credentials, payment URLs, and health states on the same server. `health-e2e.ps1` verifies channel health checks and audit records. `admin-e2e.ps1` verifies login-first access and captures desktop/mobile screenshots.
 
 GitHub Actions runs `go vet`, race-enabled tests, and coverage output for both child modules. Local race tests require CGO and a C compiler.
 
@@ -59,6 +61,31 @@ Every create-payment HTTP request can carry `envType`:
 ```
 
 Supported values are `test` and `release`. Empty values default to `test`, and the server also accepts `env_type` for snake-case clients. Webhook callbacks can carry the same field so test callbacks cannot update release payments. The admin dashboard defaults to the test view and can switch between test, release, and all environments without deploying another server.
+
+Each channel can define shared defaults plus per-environment overrides:
+
+```json
+{
+  "name": "wechat",
+  "provider": "wechat_pay",
+  "enabled": true,
+  "options": {
+    "pay_url_base": "https://pay233.local/wechat/pay"
+  },
+  "environments": {
+    "test": {
+      "credentials": { "merchant_id": "wechat-test-mch", "api_key": "test-key" },
+      "options": { "pay_url_base": "https://test.pay.example/wechat/pay", "health_status": "ok" }
+    },
+    "release": {
+      "credentials": { "merchant_id": "wechat-release-mch", "api_key": "release-key" },
+      "options": { "pay_url_base": "https://pay.example/wechat/pay", "health_status": "ok" }
+    }
+  }
+}
+```
+
+The same structure applies to Alipay, Stripe, PayPal, Google Pay, Apple iOS Pay, UnionPay, and custom third-party adapters.
 
 ## Install Server
 
@@ -83,6 +110,8 @@ curl -fsSL https://raw.githubusercontent.com/neko233-com/pay233/main/scripts/ins
 The installer downloads `pay233-server` from `neko233-com/pay233-server` releases, creates a default config, and installs startup integration where available.
 
 Default installed channels include `mock`, `wechat`, `alipay`, `stripe`, `paypal`, `google-pay`, `apple-iap`, and `unionpay`. The admin console is available at `/admin` with default credentials `root` / `root`; change them before production use.
+
+HTTP API signatures use `X-Pay233-Timestamp` plus `X-Pay233-Signature`; timestamps outside the configured `signature_max_skew_seconds` window are rejected to reduce replay risk.
 
 Logs are daily rotated and retained for 31 days by default:
 

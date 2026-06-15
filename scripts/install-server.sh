@@ -95,7 +95,8 @@ write_config() {
     "addr": "${LISTEN_ADDR}"
   },
   "api": {
-    "signing_secret": "${secret}"
+    "signing_secret": "${secret}",
+    "signature_max_skew_seconds": 300
   },
   "admin": {
     "username": "${ADMIN_USERNAME}",
@@ -120,7 +121,30 @@ write_config() {
     {
       "name": "mock",
       "provider": "mock",
-      "enabled": true
+      "enabled": true,
+      "options": {
+        "pay_url_base": "https://pay233.local/mock/pay"
+      },
+      "environments": {
+        "test": {
+          "credentials": {
+            "merchant_id": "mock-test-merchant"
+          },
+          "options": {
+            "pay_url_base": "https://pay233.local/mock/test/pay",
+            "health_status": "ok"
+          }
+        },
+        "release": {
+          "credentials": {
+            "merchant_id": "mock-release-merchant"
+          },
+          "options": {
+            "pay_url_base": "https://pay233.local/mock/release/pay",
+            "health_status": "ok"
+          }
+        }
+      }
     },
     {
       "name": "wechat",

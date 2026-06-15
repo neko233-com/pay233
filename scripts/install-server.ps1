@@ -41,7 +41,10 @@ function Write-Pay233Config {
     New-Item -ItemType Directory -Force -Path $ConfigDir | Out-Null
     $config = [ordered]@{
         http = [ordered]@{ addr = $ListenAddr }
-        api = [ordered]@{ signing_secret = $secret }
+        api = [ordered]@{
+            signing_secret = $secret
+            signature_max_skew_seconds = 300
+        }
         admin = [ordered]@{
             username = $AdminUsername
             password = $AdminPassword
@@ -66,6 +69,25 @@ function Write-Pay233Config {
                 name = "mock"
                 provider = "mock"
                 enabled = $true
+                options = [ordered]@{
+                    pay_url_base = "https://pay233.local/mock/pay"
+                }
+                environments = [ordered]@{
+                    test = [ordered]@{
+                        credentials = [ordered]@{ merchant_id = "mock-test-merchant" }
+                        options = [ordered]@{
+                            pay_url_base = "https://pay233.local/mock/test/pay"
+                            health_status = "ok"
+                        }
+                    }
+                    release = [ordered]@{
+                        credentials = [ordered]@{ merchant_id = "mock-release-merchant" }
+                        options = [ordered]@{
+                            pay_url_base = "https://pay233.local/mock/release/pay"
+                            health_status = "ok"
+                        }
+                    }
+                }
             },
             [ordered]@{
                 name = "wechat"
